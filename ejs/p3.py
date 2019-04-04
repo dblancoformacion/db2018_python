@@ -25,3 +25,18 @@ for i in r.root.prediccion.dia:
 rs.execute("DELETE FROM aemet WHERE fecha=date(insercion);")	
 rs.execute("UPDATE aemet SET f_prediccion=date(insercion);");
 conn.commit()
+sql="""
+	SELECT fecha,lluvia FROM aemet WHERE lluvia=(
+	    SELECT MIN(lluvia) FROM aemet
+	      WHERE date(insercion)=(
+	        SELECT MAX(date(insercion)) FROM aemet
+	       )  
+	  ) AND date(insercion)=(
+	      SELECT MAX(date(insercion)) FROM aemet
+	);
+"""
+rs.execute(sql)
+r=rs.fetchall()
+print("Puedes ir el",r[0][
+	0],"con una probabilidad de lluvia del",r[0][1],"%")
+input()
