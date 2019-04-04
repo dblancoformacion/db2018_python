@@ -7,7 +7,7 @@ conn = mysql.connector.connect(
 	database='db2018_python'
 ) 
 rs=conn.cursor()
-rs.execute("TRUNCATE TABLE aemet;")
+rs.execute("DELETE FROM aemet WHERE date(insercion)=date(NOW());")
 r = untangle.parse('http://www.aemet.es/xml/municipios/localidad_39075.xml')
 print("f_elaboracion : ",r.root.elaborado.cdata)
 print("lugar : ",r.root.nombre.cdata)
@@ -22,5 +22,6 @@ for i in r.root.prediccion.dia:
 		  VALUES ('{}','{}',NOW());
 	""".format(fecha,lluvia)
 	rs.execute(sql)
-rs.execute("DELETE FROM aemet WHERE fecha=date(NOW());")	
+rs.execute("DELETE FROM aemet WHERE fecha=date(insercion);")	
+rs.execute("UPDATE aemet SET f_prediccion=date(insercion);");
 conn.commit()
