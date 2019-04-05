@@ -7,12 +7,23 @@ conn = mysql.connector.connect(
 	database='db2018_python'
 ) 
 rs=conn.cursor()
+# elimino los registros del mismo día que hago el volcado desde aemet
+# para que la clave unique me deje insertar los nuevos
 rs.execute("DELETE FROM aemet WHERE date(insercion)=date(NOW());")
+# accedo al xml de aemet con los datos de las predicciones
 r = untangle.parse('http://www.aemet.es/xml/municipios/localidad_39075.xml')
 print("f_elaboracion : ",r.root.elaborado.cdata)
 print("lugar : ",r.root.nombre.cdata)
 for i in r.root.prediccion.dia:
 	fecha=i['fecha']
+	for j in i.prob_precipitacion:
+		#print(fecha,j['periodo'],j.cdata)
+		sql="""
+			INSERT INTO aemet (fecha, periodo, lluvia, insercion)
+			  VALUES ('{}','{}','{}',NOW());
+		""".format(fecha,j['periodo'],j.cdata)
+		rs.execute(sql)
+	'''
 	if len(i.prob_precipitacion):
 		lluvia=i.prob_precipitacion[0].cdata
 	else:
@@ -21,7 +32,8 @@ for i in r.root.prediccion.dia:
 		INSERT INTO aemet (fecha, lluvia, insercion)
 		  VALUES ('{}','{}',NOW());
 	""".format(fecha,lluvia)
-	rs.execute(sql)
+	'''
+	#rs.execute(sql)
 rs.execute("DELETE FROM aemet WHERE fecha=date(insercion);")	
 rs.execute("UPDATE aemet SET f_prediccion=date(insercion);");
 conn.commit()
