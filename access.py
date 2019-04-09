@@ -3,7 +3,8 @@ import pyodbc
 from os import getcwd
 
 DB_PATH = getcwd() + "/" + "db2018"
-DRIVER_NAME = "Microsoft Access Driver (*.mdb, *.accdb)"
+#DRIVER_NAME = "Microsoft Access Driver (*.mdb, *.accdb)"
+DRIVER_NAME = "Microsoft Access Driver (*.mdb)"
 
 conn_local = pyodbc.connect("Driver={%s};DBQ=%s;" % (DRIVER_NAME, DB_PATH))
 
